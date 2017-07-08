@@ -16,7 +16,7 @@ export # not exported by Base
     By, Lt, Perm,
     ReverseOrdering, ForwardOrdering,
     DirectOrdering,
-    lt, ord, ordtype
+    lt, ord, ord_deprecated, ordtype
 
 abstract type Ordering end
 
@@ -74,5 +74,8 @@ function ord(lt, by, rev::Bool, order::Ordering=Forward)
     o = _ord(lt, by, order)
     return rev ? ReverseOrdering(o) : o
 end
+
+# See also method in deprecated.jl
+ord_deprecated(lt, by, rev::Bool, order::Void) = ord(lt, by, rev, Forward)
 
 end
