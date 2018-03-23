@@ -459,17 +459,13 @@ done(r::AbstractUnitRange{T}, i) where {T} = i == oftype(i, r.stop) + oneunit(T)
 start(r::OneTo{T}) where {T} = oneunit(T)
 
 # some special cases to favor default Int type to avoid overflow
-let smallint = (Int === Int64 ?
-                Union{Int8,UInt8,Int16,UInt16,Int32,UInt32} :
-                Union{Int8,UInt8,Int16,UInt16})
-    global start
-    global next
-    start(r::StepRange{<:smallint}) = convert(Int, r.start)
-    next(r::StepRange{T}, i) where {T<:smallint} = (i % T, i + r.step)
-    start(r::UnitRange{<:smallint}) = convert(Int, r.start)
-    next(r::AbstractUnitRange{T}, i) where {T<:smallint} = (i % T, i + 1)
-    start(r::OneTo{<:smallint}) = 1
-end
+const IterateAsInt = Union{Int8,UInt8,Int16,UInt16}
+
+start(r::StepRange{<:IterateAsInt}) = convert(Int, r.start)
+next(r::StepRange{T}, i) where {T<:IterateAsInt} = (i % T, i + r.step)
+start(r::UnitRange{<:IterateAsInt}) = convert(Int, r.start)
+next(r::AbstractUnitRange{T}, i) where {T<:IterateAsInt} = (i % T, i + 1)
+start(r::OneTo{<:IterateAsInt}) = 1
 
 ## indexing
 
