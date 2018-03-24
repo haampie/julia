@@ -31,6 +31,7 @@ include("options.jl")
 
 # core operations & types
 function return_type end # promotion.jl expects this to exist
+include("inttypes.jl")
 include("promotion.jl")
 include("tuple.jl")
 include("pair.jl")
@@ -50,13 +51,11 @@ include("refvalue.jl")
 # checked arithmetic
 const checked_add = +
 const checked_sub = -
-const SignedInt = Union{Int8,Int16,Int32,Int64,Int128}
-const UnsignedInt = Union{UInt8,UInt16,UInt32,UInt64,UInt128}
-sub_with_overflow(x::T, y::T) where {T<:SignedInt}   = checked_ssub_int(x, y)
-sub_with_overflow(x::T, y::T) where {T<:UnsignedInt} = checked_usub_int(x, y)
+sub_with_overflow(x::T, y::T) where {T<:BitSigned}   = checked_ssub_int(x, y)
+sub_with_overflow(x::T, y::T) where {T<:BitUnsigned} = checked_usub_int(x, y)
 sub_with_overflow(x::Bool, y::Bool) = (x-y, false)
-add_with_overflow(x::T, y::T) where {T<:SignedInt}   = checked_sadd_int(x, y)
-add_with_overflow(x::T, y::T) where {T<:UnsignedInt} = checked_uadd_int(x, y)
+add_with_overflow(x::T, y::T) where {T<:BitSigned}   = checked_sadd_int(x, y)
+add_with_overflow(x::T, y::T) where {T<:BitUnsigned} = checked_uadd_int(x, y)
 add_with_overflow(x::Bool, y::Bool) = (x+y, false)
 
 # core array operations

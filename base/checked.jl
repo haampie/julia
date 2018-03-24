@@ -29,9 +29,6 @@ checked_cld(x::Integer, y::Integer) = checked_cld(promote(x,y)...)
 # but no method exists to handle those types
 checked_abs(x::T) where {T<:Integer} = no_op_err("checked_abs", T)
 
-const SignedInt = Union{Int8,Int16,Int32,Int64,Int128}
-const UnsignedInt = Union{UInt8,UInt16,UInt32,UInt64,UInt128}
-
 # LLVM has several code generation bugs for checked integer arithmetic (see e.g.
 # #4905). We thus distinguish between operations that can be implemented via
 # intrinsics, and operations for which we have to provide work-arounds.
@@ -73,10 +70,10 @@ const BrokenUnsignedInt = brokenUnsignedInt
 const BrokenSignedIntMul = brokenSignedIntMul
 const BrokenUnsignedIntMul = brokenUnsignedIntMul
 # Use these definitions to test the non-LLVM implementations
-# const BrokenSignedInt = SignedInt
-# const BrokenUnsignedInt = UnsignedInt
-# const BrokenSignedIntMul = SignedInt
-# const BrokenUnsignedIntMul = UnsignedInt
+# const BrokenSignedInt = BitSigned
+# const BrokenUnsignedInt = BitUnsigned
+# const BrokenSignedIntMul = BitSigned
+# const BrokenUnsignedIntMul = BitUnsigned
 
 """
     Base.checked_neg(x)
@@ -117,12 +114,12 @@ The overflow protection may impose a perceptible performance penalty.
 """
 function checked_abs end
 
-function checked_abs(x::SignedInt)
+function checked_abs(x::BitSigned)
     r = ifelse(x<0, -x, x)
     r<0 && throw(OverflowError(string("checked arithmetic: cannot compute |x| for x = ", x, "::", typeof(x))))
     r
  end
-checked_abs(x::UnsignedInt) = x
+checked_abs(x::BitUnsigned) = x
 checked_abs(x::Bool) = x
 
 
@@ -133,8 +130,8 @@ checked_abs(x::Bool) = x
 Calculates `r = x+y`, with the flag `f` indicating whether overflow has occurred.
 """
 function add_with_overflow end
-add_with_overflow(x::T, y::T) where {T<:SignedInt}   = checked_sadd_int(x, y)
-add_with_overflow(x::T, y::T) where {T<:UnsignedInt} = checked_uadd_int(x, y)
+add_with_overflow(x::T, y::T) where {T<:BitSigned}   = checked_sadd_int(x, y)
+add_with_overflow(x::T, y::T) where {T<:BitUnsigned} = checked_uadd_int(x, y)
 add_with_overflow(x::Bool, y::Bool) = (x+y, false)
 
 if BrokenSignedInt != Union{}
@@ -195,8 +192,8 @@ checked_add(x1::T, x2::T, x3::T, x4::T, x5::T, x6::T, x7::T, x8::T) where {T} =
 Calculates `r = x-y`, with the flag `f` indicating whether overflow has occurred.
 """
 function sub_with_overflow end
-sub_with_overflow(x::T, y::T) where {T<:SignedInt}   = checked_ssub_int(x, y)
-sub_with_overflow(x::T, y::T) where {T<:UnsignedInt} = checked_usub_int(x, y)
+sub_with_overflow(x::T, y::T) where {T<:BitSigned}   = checked_ssub_int(x, y)
+sub_with_overflow(x::T, y::T) where {T<:BitUnsigned} = checked_usub_int(x, y)
 sub_with_overflow(x::Bool, y::Bool) = (x-y, false)
 
 if BrokenSignedInt != Union{}
@@ -235,8 +232,8 @@ end
 Calculates `r = x*y`, with the flag `f` indicating whether overflow has occurred.
 """
 function mul_with_overflow end
-mul_with_overflow(x::T, y::T) where {T<:SignedInt}   = checked_smul_int(x, y)
-mul_with_overflow(x::T, y::T) where {T<:UnsignedInt} = checked_umul_int(x, y)
+mul_with_overflow(x::T, y::T) where {T<:BitSigned}   = checked_smul_int(x, y)
+mul_with_overflow(x::T, y::T) where {T<:BitUnsigned} = checked_umul_int(x, y)
 mul_with_overflow(x::Bool, y::Bool) = (x*y, false)
 
 if BrokenSignedIntMul != Union{} && BrokenSignedIntMul != Int128

@@ -172,6 +172,7 @@ CORE_SRCS := $(addprefix $(JULIAHOME)/, \
 		base/generator.jl \
 		base/hashing.jl \
 		base/int.jl \
+		base/inttypes.jl \
 		base/indices.jl \
 		base/iterators.jl \
 		base/namedtuple.jl \
