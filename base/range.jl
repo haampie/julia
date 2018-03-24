@@ -480,6 +480,15 @@ function getindex(v::UnitRange{T}, i::Integer) where T
     ret
 end
 
+function getindex(r::UnitRange{Tr}, i::Integer) where {Tr<:BitInteger}
+    @_inline_meta
+    # Check whether 1 ≤ i ≤ length(r) without overflows
+    @boundscheck if i < 1 || r.start > r.stop || i - 1 > unsigned(r.stop) - unsigned(r.start)
+        throw_boundserror(r, i)
+    end
+    (r.start + i - 1) % Tr
+end
+
 function getindex(v::OneTo{T}, i::Integer) where T
     @_inline_meta
     @boundscheck ((i > 0) & (i <= v.stop)) || throw_boundserror(v, i)
