@@ -65,7 +65,7 @@ ordtype(o::Ordering, vs::AbstractArray) = eltype(vs)
 
 function ord(lt, by, rev::Bool)
     o = By(by, Lt(lt))
-    return rev ? ReverseOrdering(o) : o
+    return rev ? Reverse(o) : o
 end
 
 ord(lt, by, rev::Nothing) = By(by, Lt(lt))

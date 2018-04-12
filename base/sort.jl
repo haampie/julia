@@ -1072,15 +1072,15 @@ function nans2right!(v::AbstractVector, o::Ordering, lo::Int=first(axes(v,1)), h
 end
 
 nans2end!(v::AbstractVector, o::ForwardOrdering) = nans2right!(v,o)
-nans2end!(v::AbstractVector, o::ReverseOrdering) = nans2left!(v,o)
+nans2end!(v::AbstractVector, o::BackwardOrdering) = nans2left!(v,o)
 nans2end!(v::AbstractVector{Int}, o::Perm{<:ForwardOrdering}) = nans2right!(v,o)
-nans2end!(v::AbstractVector{Int}, o::Perm{<:ReverseOrdering}) = nans2left!(v,o)
+nans2end!(v::AbstractVector{Int}, o::Perm{<:BackwardOrdering}) = nans2left!(v,o)
 
 issignleft(o::ForwardOrdering, x::Floats) = lt(o, x, zero(x))
-issignleft(o::ReverseOrdering, x::Floats) = lt(o, x, -zero(x))
+issignleft(o::BackwardOrdering, x::Floats) = lt(o, x, -zero(x))
 issignleft(o::Perm, i::Int) = issignleft(o.order, o.data[i])
 
-function fpsort!(v::AbstractVector, a::Algorithm, o::Ordering)
+function fpsort!(v::AbstractVector, a::Algorithm, o::DirectOrdering)
     i, j = lo, hi = nans2end!(v,o)
     @inbounds while true
         while i <= j &&  issignleft(o,v[i]); i += 1; end
@@ -1095,7 +1095,7 @@ function fpsort!(v::AbstractVector, a::Algorithm, o::Ordering)
 end
 
 
-fpsort!(v::AbstractVector, a::Sort.PartialQuickSort, o::Ordering) =
+fpsort!(v::AbstractVector, a::Sort.PartialQuickSort, o::DirectOrdering) =
     sort!(v, first(axes(v,1)), last(axes(v,1)), a, o)
 
 sort!(v::AbstractVector{<:Floats}, a::Algorithm, o::DirectOrdering) = fpsort!(v,a,o)
