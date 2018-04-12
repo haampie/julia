@@ -1586,9 +1586,9 @@ end
 # the internal logic that deals with the renaming. These live in base/strings/util.jl.
 
 # PR #22388: also remove corresonding code in ordering.jl and sort.jl
-function Base.Order.ord_deprecated(lt, by, rev::Bool, order::Ordering)
+function Base.Order.ord_deprecated(lt, by, rev::Union{Bool,Nothing}, order::Ordering)
     depwarn("`order` keyword argument is deprecated, use `lt`, `by` and `rev` instead", :ord_deprecated)
-    ord(lt, by, rev, order)
+    ord(lt, by, rev)
 end
 
 # END 0.7 deprecations

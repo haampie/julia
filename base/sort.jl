@@ -89,7 +89,7 @@ true
 ```
 """
 issorted(itr; lt=isless, by=identity, rev::Union{Bool,Nothing}=nothing, 
-         order::Union{Ordering,Void}=nothing) =
+         order::Union{Ordering,Nothing}=nothing) =
     issorted(itr, ord_deprecated(lt, by, rev, order))
 
 function partialsort!(v::AbstractVector, k::Union{Int,OrdinalRange}, o::Ordering)
@@ -150,7 +150,7 @@ julia> a
 ```
 """
 partialsort!(v::AbstractVector, k::Union{Int,OrdinalRange};
-             lt=isless, by=identity, rev::Union{Bool,Nothing}=nothing, order::Union{Void,Ordering}=Forward) =
+             lt=isless, by=identity, rev::Union{Bool,Nothing}=nothing, order::Union{Ordering,Nothing}=nothing) =
     partialsort!(v, k, ord_deprecated(lt,by,rev,order))
 
 """
@@ -282,7 +282,7 @@ for s in [:searchsortedfirst, :searchsortedlast, :searchsorted]
     @eval begin
         $s(v::AbstractVector, x, o::Ordering) = (inds = axes(v, 1); $s(v,x,first(inds),last(inds),o))
         $s(v::AbstractVector, x; lt=isless, by=identity, rev::Union{Bool,Nothing}=false,
-           order::Union{Ordering,Void}=nothing) =
+           order::Union{Ordering,Nothing}=nothing) =
             $s(v, x, ord_deprecated(lt, by, rev, order))
         $s(v::AbstractVector, x) = $s(v, x, Forward)
     end
@@ -615,7 +615,7 @@ function sort!(v::AbstractVector;
                lt=isless,
                by=identity,
                rev::Union{Bool,Nothing}=nothing,
-               order::Union{Ordering, Void}=nothing)
+               order::Union{Ordering,Nothing}=nothing)
     ordr = ord_deprecated(lt, by, rev, order)
     if ordr === Forward && isa(v,Vector) && eltype(v)<:Integer
         n = _length(v)
@@ -706,7 +706,7 @@ function partialsortperm!(ix::AbstractVector{<:Integer}, v::AbstractVector,
                           lt::Function=isless,
                           by::Function=identity,
                           rev::Union{Bool,Nothing}=nothing,
-                          order::Union{Ordering,Nothing}=Forward,
+                          order::Union{Ordering,Nothing}=nothing,
                           initialized::Bool=false)
     if !initialized
         @inbounds for i = axes(ix,1)
@@ -758,7 +758,7 @@ function sortperm(v::AbstractVector;
                   by=identity,
 
                   rev::Union{Bool,Nothing}=nothing,
-                  order::Union{Ordering, Void}=nothing)
+                  order::Union{Ordering,Nothing}=nothing)
     ordr = ord_deprecated(lt, by, rev, order)
     _sortperm(v, alg, ordr)
 end
@@ -813,7 +813,7 @@ function sortperm!(x::AbstractVector{<:Integer}, v::AbstractVector;
                    lt=isless,
                    by=identity,
                    rev::Union{Bool,Nothing}=nothing,
-                   order::Union{Ordering, Void}=nothing,
+                   order::Union{Ordering,Nothing}=nothing,
                    initialized::Bool=false)
     if axes(x,1) != axes(v,1)
         throw(ArgumentError("index vector must have the same indices as the source vector, $(axes(x,1)) != $(axes(v,1))"))
@@ -943,22 +943,19 @@ julia> sortrows([7 3 5; -1 6 4; 9 -2 8], rev=true)
  -1   6  4
 ```
 """
-
 function sortrows(A::AbstractMatrix;
                   alg::Algorithm=DEFAULT_UNSTABLE,
                   lt=isless,
                   by=identity,
-                  rev::Bool=false,
-                  order::Union{Ordering, Void}=nothing)
+                  rev::Union{Bool,Nothing}=nothing,
+                  order::Union{Ordering,Nothing}=nothing)
     inds = axes(A,1)
     T = slicetypeof(A, inds, :)
     rows = similar(A, T, axes(A, 1))
     for i in inds
         rows[i] = view(A, i, :)
     end
-    # Only called to print deprecation warning (argument has always been ignored)
-    ord_deprecated(lt, by, rev, order)
-    ordr = ord(lt, by, rev, Lexicographic)
+    ordr = ord(lt, by, rev, ord_deprecated(lt, by, rev, order))
     p = _sortperm(rows, alg, ordr)
     A[p,:]
 end
@@ -995,7 +992,7 @@ function sortcols(A::AbstractMatrix;
                   alg::Algorithm=DEFAULT_UNSTABLE,
                   lt=isless,
                   by=identity,
-                  rev::Bool=false,
+                  rev::Union{Bool,Nothing} = nothing,
                   order::Union{Ordering,Nothing}=nothing)
     inds = axes(A,2)
     T = slicetypeof(A, :, inds)
@@ -1003,10 +1000,7 @@ function sortcols(A::AbstractMatrix;
     for i in inds
         cols[i] = view(A, :, i)
     end
-    # Only called to print deprecation warning (argument has always been ignored)
-    ord_deprecated(lt, by, rev, order)
-    ordr = ord(lt, by, rev, Lexicographic)
-    p = _sortperm(cols, alg, ordr)
+    p = _sortperm(cols, alg, ord_deprecated(lt, by, rev, order))
     A[:,p]
 end
 

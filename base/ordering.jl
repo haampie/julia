@@ -12,70 +12,65 @@ import .Base:
 ## notions of element ordering ##
 
 export # not exported by Base
-    Ordering, Forward, Reverse,
-    By, Lt, Perm,
-    ReverseOrdering, ForwardOrdering,
-    DirectOrdering,
+    Ordering, 
+    By, Lt, Perm, Reverse,
+    Forward, Backward,
+    BackwardOrdering, ForwardOrdering, DirectOrdering,
     lt, ord, ord_deprecated, ordtype
 
 abstract type Ordering end
 
-struct ForwardOrdering <: Ordering end
-struct ReverseOrdering{Fwd<:Ordering} <: Ordering
-    fwd::Fwd
-end
-
-ReverseOrdering(rev::ReverseOrdering) = rev.fwd
-ReverseOrdering(fwd::Fwd) where {Fwd} = ReverseOrdering{Fwd}(fwd)
-
-const DirectOrdering = Union{ForwardOrdering,ReverseOrdering{ForwardOrdering}}
-
-const Forward = ForwardOrdering()
-const Reverse = ReverseOrdering(Forward)
-
-struct By{T} <: Ordering
-    by::T
-end
-
-struct Lt{T} <: Ordering
+struct Lt{T<:Function} <: Ordering
     lt::T
 end
 
+struct By{O<:Ordering,T<:Function} <: Ordering
+    by::T
+    lt::O
+end
+
+struct Reverse{O<:Ordering} <: Ordering
+    lt::O
+end
+
 struct Perm{O<:Ordering,V<:AbstractVector} <: Ordering
-    order::O
+    lt::O
     data::V
 end
 
-lt(o::ForwardOrdering,       a, b) = isless(a,b)
-lt(o::ReverseOrdering,       a, b) = lt(o.fwd,b,a)
-lt(o::By,                    a, b) = isless(o.by(a),o.by(b))
-lt(o::Lt,                    a, b) = o.lt(a,b)
+const Forward = Lt(isless)
+const Backward = Reverse(Forward)
 
-@propagate_inbounds function lt(p::Perm, a::Integer, b::Integer)
+const ForwardOrdering = typeof(Forward)
+const BackwardOrdering = typeof(Backward)
+const DirectOrdering = Union{ForwardOrdering,BackwardOrdering}
+
+(o::Lt)(a, b) = o.lt(a, b)
+(o::By)(a, b) = o.lt(o.by(a), o.by(b))
+(o::Reverse)(a, b) = o.lt(b, a)
+
+lt(o::Ordering, a, b) = o.lt(a, b)
+
+@propagate_inbounds function (o::Perm)(a::Integer, b::Integer)
     da = p.data[a]
     db = p.data[b]
-    lt(p.order, da, db) | (!lt(p.order, db, da) & (a < b))
+    o.lt(da, db) | (!o.lt(db, da) & (a < b))
 end
 
-ordtype(o::ReverseOrdering, vs::AbstractArray) = ordtype(o.fwd, vs)
-ordtype(o::Perm,            vs::AbstractArray) = ordtype(o.order, o.data)
+ordtype(o::Reverse,  vs::AbstractArray) = ordtype(o.lt, vs)
+ordtype(o::Perm,     vs::AbstractArray) = ordtype(o.lt, o.data)
 # TODO: here, we really want the return type of o.by, without calling it
-ordtype(o::By,              vs::AbstractArray) = try typeof(o.by(vs[1])) catch; Any end
-ordtype(o::Ordering,        vs::AbstractArray) = eltype(vs)
+ordtype(o::By,       vs::AbstractArray) = try typeof(o.by(vs[1])) catch; Any end
+ordtype(o::Ordering, vs::AbstractArray) = eltype(vs)
 
-_ord(lt::typeof(isless), by::typeof(identity), order::Ordering) = order
-_ord(lt::typeof(isless), by,                   order::Ordering) = By(by)
-_ord(lt,                 by::typeof(identity), order::Ordering) = Lt(lt)
-_ord(lt,                 by,                   order::Ordering) = Lt((x,y)->lt(by(x),by(y)))
-
-ord(lt, by, rev::Nothing, order::Ordering=Forward) = _ord(lt, by, order)
-
-function ord(lt, by, rev::Bool, order::Ordering=Forward)
-    o = _ord(lt, by, order)
+function ord(lt, by, rev::Bool)
+    o = By(by, Lt(lt))
     return rev ? ReverseOrdering(o) : o
 end
 
+ord(lt, by, rev::Nothing) = By(by, Lt(lt))
+
 # See also method in deprecated.jl
-ord_deprecated(lt, by, rev::Bool, order::Void) = ord(lt, by, rev, Forward)
+ord_deprecated(lt, by, rev::Union{Bool,Nothing}, order::Nothing) = ord(lt, by, rev)
 
 end
