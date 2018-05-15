@@ -229,7 +229,7 @@ function idf(cfg::CFG, liveness::BlockLiveness, domtree::DomTree)
     # This should be a priority queue, but TODO - sorted array for now
     defs = liveness.def_bbs
     pq = Tuple{Int, Int}[(defs[i], domtree.nodes[defs[i]].level) for i in 1:length(defs)]
-    sort!(pq, by=x->x[2])
+    sort!(pq, By(x->x[2]))
     phiblocks = Int[]
     processed = BitSet()
     while !isempty(pq)
@@ -250,7 +250,7 @@ function idf(cfg::CFG, liveness::BlockLiveness, domtree::DomTree)
                 push!(phiblocks, succ)
                 if !(succ in defs)
                     push!(pq, (succ, succ_level))
-                    sort!(pq, by=x->x[2])
+                    sort!(pq, By(x->x[2]))
                 end
             end
             for child in domtree.nodes[active].children
@@ -447,7 +447,7 @@ function compute_live_ins(cfg::CFG, defuse)
     for x in defuse.defs
         push!(ordered, (x, block_for_inst(cfg, x), false))
     end
-    ordered = sort(ordered, by=x->x[1])
+    ordered = sort(ordered, By(x->x[1]))
     bb_defs = Int[]
     bb_uses = Int[]
     last_bb = last_def_bb = 0

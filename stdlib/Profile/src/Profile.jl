@@ -609,7 +609,7 @@ function callersf(matchfunc::Function, bt::Vector, lidict::LineInfoFlatDict)
     end
     k = collect(keys(counts))
     v = collect(values(counts))
-    p = sortperm(v, rev=true)
+    p = sortperm(v, Backward)
     return [(v[i], k[i]) for i in p]
 end
 
@@ -647,7 +647,7 @@ function liperm(lilist::Vector{StackFrame})
         fcmp < 0 && return true
         return false
     end
-    return sortperm(lilist, lt = lt)
+    return sortperm(lilist, Less(lt))
 end
 
 warning_empty() = @warn """

@@ -77,7 +77,7 @@ function compress_versions_data(
             push!(tx, (v, kv...))
         end
     end
-    sort!(tx, by=t->(t[1][1], t[1][2], t[2], t[3]))
+    sort!(tx, By(t->(t[1][1], t[1][2], t[2], t[3])))
     return Tuple{String,String,String}[
         (versions_string(t[1]), t[2], t[3]) for t in tx
     ]

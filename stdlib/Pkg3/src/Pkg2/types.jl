@@ -113,7 +113,7 @@ in(v::VersionNumber, s::VersionSet) = any(i->in(v,i), s.intervals)
 function intersect(A::VersionSet, B::VersionSet)
     (isempty(A) || isempty(B)) && return copy(empty_versionset)
     ivals = [intersect(a,b) for a in A.intervals for b in B.intervals]
-    sort!(ivals, by=i->i.lower)
+    sort!(ivals, By(i->i.lower))
     VersionSet(ivals)
 end
 

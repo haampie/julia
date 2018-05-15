@@ -288,7 +288,7 @@ function decimate!(graph::Graph, strace::SolutionTrace, msgs::Messages, n::Integ
     dtrace = Tuple{Int,Int}[]
     dec = 0
 
-    fldorder = sort(findall(.!(ignored)), by=p0->secondmax(fld[p0], gconstr[p0]))
+    fldorder = sort(findall(.!(ignored)), By(p0->secondmax(fld[p0], gconstr[p0])))
     for p0 in fldorder
         s0 = decimate1!(p0, graph, strace, msgs)
         s0 == 0 && continue

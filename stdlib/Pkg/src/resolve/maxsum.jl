@@ -428,7 +428,7 @@ function decimate(n::Int, graph::Graph, msgs::Messages)
     adjdict = graph.adjdict
     fld = msgs.fld
     decimated = msgs.decimated
-    fldorder = sortperm(fld, by=secondmax)
+    fldorder = sortperm(fld, By(secondmax))
     did_dec = false
     for p0 in fldorder
         decimated[p0] && continue

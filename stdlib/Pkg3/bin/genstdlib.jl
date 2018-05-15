@@ -40,7 +40,7 @@ write_toml(prefix, "Registry") do io
         """)
     println(io, "\"\"\"")
     println(io, "\n[packages]")
-    for pkg in sort!(collect(keys(stdlib_deps)), by=pkg->stdlib_uuids[pkg])
+    for pkg in sort!(collect(keys(stdlib_deps)), By(pkg->stdlib_uuids[pkg]))
         println(io, stdlib_uuids[pkg], " = { name = ", repr(pkg), ", path = ", repr(pkg), " }")
     end
 end
@@ -69,7 +69,7 @@ for (pkg, uuid) in stdlib_uuids
     else
         write_toml(prefix, pkg, "Deps") do io
             println(io, "[", toml_key("0.7"), "]")
-            for dep in sort!(deps, by=lowercase)
+            for dep in sort!(deps, By(lowercase))
                 println(io, "$dep = ", repr(stdlib_uuids[dep]))
             end
         end

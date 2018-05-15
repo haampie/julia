@@ -112,7 +112,7 @@ function map(f::Function, walker::GitRevWalker;
                   rev::Bool=false,
                   count::Int=0)
     res = []
-    sort!(walker, by=by, rev=rev)
+    sort!(walker, by = by, rev = rev)
     if !iszero(oid)
         push!(walker, oid)
     elseif !isempty(range)
@@ -163,7 +163,7 @@ function count(f::Function, walker::GitRevWalker;
                   by::Cint = Consts.SORT_NONE,
                   rev::Bool=false)
     c = 0
-    sort!(walker, by=by, rev=rev)
+    sort!(walker, by = by, rev = rev)
     if !iszero(oid)
         push!(walker, oid)
     else

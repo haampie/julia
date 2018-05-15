@@ -32,7 +32,7 @@ function lift_defuse(cfg::CFG, ssa::SSADefUse)
     for x in ssa.defs
         push!(ordered, (x, block_for_inst(cfg, x), false))
     end
-    ordered = sort(ordered, by=x->x[1])
+    ordered = sort(ordered, By(x->x[1]))
     bb_defs = Int[]
     bb_uses = Int[]
     last_bb = last_def_bb = 0

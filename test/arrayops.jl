@@ -1182,11 +1182,11 @@ end
     @test m == zeros(3, 4)
     @test o == fill(1, 3, 4)
 
-    asr = sortrows(a, rev=true)
+    asr = sortrows(a, Backward)
     @test isless(asr[2,:],asr[1,:])
     @test isless(asr[3,:],asr[2,:])
 
-    asc = sortcols(a, rev=true)
+    asc = sortcols(a, Backward)
     @test isless(asc[:,2],asc[:,1])
     @test isless(asc[:,3],asc[:,2])
 

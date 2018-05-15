@@ -223,7 +223,7 @@ end
     @testset "Orthogonal vectors with repeated singular values $i times. Issue 16608" for i in 2:3
         rng = MersenneTwister(126) # Fragile to compute repeated values without blocking so we set the seed
         v0  = randn(rng, 20)
-        d   = sort(rand(rng, 20), rev = true)
+        d   = sort(rand(rng, 20), Backward)
         for j in 2:i
             d[j] = d[1]
         end

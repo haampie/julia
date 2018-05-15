@@ -18,7 +18,7 @@ write_toml(prefix, "Registry") do io
         """)
     println(io, "\"\"\"")
     println(io, "\n[packages]")
-    for (pkg, p) in sort!(collect(pkgs), by=(p->p.uuid.value)∘last)
+    for (pkg, p) in sort!(collect(pkgs), By((p->p.uuid.value)∘last))
         bucket = string(uppercase(first(pkg)))
         path = joinpath(bucket, pkg)
         println(io, p.uuid, " = { name = ", repr(pkg), ", path = ", repr(path), " }")
@@ -73,7 +73,7 @@ for (bucket, b_pkgs) in buckets, (pkg, p) in b_pkgs
 
     # Versions.toml
     write_toml(prefix, bucket, pkg, "Versions") do io
-        for (i, (ver, v)) in enumerate(sort!(collect(p.versions), by=first))
+        for (i, (ver, v)) in enumerate(sort!(collect(p.versions), By(first)))
             i > 1 && println(io)
             println(io, "[", toml_key(string(ver)), "]")
             println(io, "git-tree-sha1 = ", repr(trees[uuid][v.sha1]))
@@ -96,7 +96,7 @@ for (bucket, b_pkgs) in buckets, (pkg, p) in b_pkgs
         compressed = compress_versions_data(data, versions)
         !isempty(compressed) && write_toml(prefix, bucket, pkg, name) do io
             vers = unique(getindex.(compressed, 1))
-            keys = sort!(unique(getindex.(compressed, 2)), lt=lt)
+            keys = sort!(unique(getindex.(compressed, 2)), Less(lt))
             what = (vers, keys)
             ord = (1, 2)
             for (i, x) in enumerate(what[ord[1]])

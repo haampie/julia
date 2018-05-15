@@ -453,11 +453,11 @@ function eigfact(D::Diagonal; permute::Bool=true, scale::Bool=true)
 end
 
 #Singular system
-svdvals(D::Diagonal{<:Number}) = sort!(abs.(D.diag), rev = true)
+svdvals(D::Diagonal{<:Number}) = sort!(abs.(D.diag), Backward)
 svdvals(D::Diagonal) = [svdvals(v) for v in D.diag]
 function svd(D::Diagonal{<:Number})
     S   = abs.(D.diag)
-    piv = sortperm(S, rev = true)
+    piv = sortperm(S, Backward)
     U   = Diagonal(D.diag ./ S)
     Up  = hcat([U[:,i] for i = 1:length(D.diag)][piv]...)
     V   = Diagonal(fill!(similar(D.diag), one(eltype(D.diag))))

@@ -79,7 +79,7 @@ function write(io::IO, lines::Vector{Line})
     end
 end
 function write(io::IO, reqs::Requires)
-    for pkg in sort!(collect(keys(reqs)), by=lowercase)
+    for pkg in sort!(collect(keys(reqs)), By(lowercase))
         println(io, Requirement(pkg, reqs[pkg]).content)
     end
 end

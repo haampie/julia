@@ -844,7 +844,7 @@ function showlog(io::IO, rlog::ResolveLog; view::Symbol = :plain)
     recursive = (view == :tree)
     _show(io, rlog, rlog.globals, _logindent, seen, false)
     initentries = [event[1] for event in rlog.init.events]
-    for entry in sort!(initentries, by=(entry->pkgID(entry.pkg, rlog)))
+    for entry in sort!(initentries, By(entry->pkgID(entry.pkg, rlog)))
         seen[entry] = true
         _show(io, rlog, entry, _logindent, seen, recursive)
     end
@@ -1162,7 +1162,7 @@ function build_eq_classes1!(graph::Graph, p0::Int)
 
     # group versions into sets that behave identically
     eq_sets = [Set{Int}(v0 for v0 in 1:spp[p0] if cvecs[v0] == rvec) for rvec in repr_vecs]
-    sort!(eq_sets, by=maximum)
+    sort!(eq_sets, By(maximum))
 
     # each set is represented by its highest-valued member
     repr_vers = map(maximum, eq_sets)

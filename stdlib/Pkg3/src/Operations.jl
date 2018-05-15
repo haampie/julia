@@ -836,7 +836,7 @@ function build_versions(ctx::Context, uuids::Vector{UUID}; might_need_to_resolve
     end
     # toposort builds by dependencies
     order = dependency_order_uuids(ctx, map(first, builds))
-    sort!(builds, by = build -> order[first(build)])
+    sort!(builds, By(build -> order[first(build)]))
     max_name = isempty(builds) ? 0 : maximum(textwidth.([build[2] for build in builds]))
     # build each package verions in a child process
     for (uuid, name, hash_or_path, build_file) in builds

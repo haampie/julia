@@ -163,7 +163,7 @@ struct CompoundPeriod <: AbstractTime
     function CompoundPeriod(p::Vector{Period})
         n = length(p)
         if n > 1
-            sort!(p, rev=true, lt=periodisless)
+            sort!(p, Reverse(Less(periodisless)))
             # canonicalize p by merging equal period types and removing zeros
             i = j = 1
             while j <= n

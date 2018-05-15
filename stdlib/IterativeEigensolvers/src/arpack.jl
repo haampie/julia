@@ -135,7 +135,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat::String,
             throw(ARPACKException(info[]))
         end
 
-        p = sortperm(dmap(d[1:nev]), rev=true)
+        p = sortperm(dmap(d[1:nev]), Backward)
         return ritzvec ? (d[p], v[1:n, p],iparam[5],iparam[3],iparam[9],resid) : (d[p],iparam[5],iparam[3],iparam[9],resid)
     elseif sym
         d = Vector{T}(undef, nev)
@@ -147,7 +147,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat::String,
             throw(ARPACKException(info[]))
         end
 
-        p = sortperm(dmap(d), rev=true)
+        p = sortperm(dmap(d), Backward)
         return ritzvec ? (d[p], v[1:n, p],iparam[5],iparam[3],iparam[9],resid) : (d[p],iparam[5],iparam[3],iparam[9],resid)
     else
         dr = Vector{T}(undef, nev+1)
@@ -188,9 +188,9 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat::String,
         d = complex.(dr, di)
 
         if j == nev+1
-            p = sortperm(dmap(d[1:nev]), rev=true)
+            p = sortperm(dmap(d[1:nev]), Backward)
         else
-            p = sortperm(dmap(d), rev=true)
+            p = sortperm(dmap(d), Backward)
             p = p[1:nev]
         end
 

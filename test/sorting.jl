@@ -1,12 +1,12 @@
 # This file is a part of Julia. License is MIT: https://julialang.org/license
 
-using Base.Order: Forward
+using Base.Order: Forward, Backward, By, Less, Reverse
 using Random
 
 @test sort([2,3,1]) == [1,2,3]
-@test sort([2,3,1], rev=true) == [3,2,1]
+@test sort([2,3,1], Backward) == [3,2,1]
 @test sort(['z':-1:'a';]) == ['a':'z';]
-@test sort(['a':'z';], rev=true) == ['z':-1:'a';]
+@test sort(['a':'z';], Backward) == ['z':-1:'a';]
 @test sortperm([2,3,1]) == [3,1,2]
 @test sortperm!([1,2,3], [2,3,1]) == [3,1,2]
 let s = view([1,2,3,4], 1:3),
@@ -26,8 +26,8 @@ let a=[1:10;]
     for r in Any[2:4, 1:2, 10:10, 4:2, 2:1, 4:-1:2, 2:-1:1, 10:-1:10, 4:1:3, 1:2:8, 10:-3:1]
         @test partialsort(a, r) == [r;]
         @test partialsortperm(a, r) == [r;]
-        @test partialsort(a, r, rev=true) == (11 .- [r;])
-        @test partialsortperm(a, r, rev=true) == (11 .- [r;])
+        @test partialsort(a, r, Backward) == (11 .- [r;])
+        @test partialsortperm(a, r, Backward) == (11 .- [r;])
     end
 end
 @test sum(randperm(6)) == 21
@@ -37,8 +37,8 @@ end
                 UInt8, UInt16, UInt32, UInt64, UInt128,
                 Float16, Float32, Float64, BigInt, BigFloat]
 
-    @test searchsorted([1:10;], 1, by=(x -> x >= 5)) == 1:4
-    @test searchsorted([1:10;], 10, by=(x -> x >= 5)) == 5:10
+    @test searchsorted([1:10;], 1, By((x -> x >= 5))) == 1:4
+    @test searchsorted([1:10;], 10, By((x -> x >= 5))) == 5:10
     @test searchsorted([1:5; 1:5; 1:5], 1, 6, 10, Forward) == 6:6
     @test searchsorted(fill(1, 15), 1, 6, 10, Forward) == 6:10
 
@@ -54,8 +54,8 @@ end
         @test searchsorted(1:3, T(2)) == 2:2
         @test searchsorted(1:3, T(4)) == 4:3
 
-        @test searchsorted(R[1:10;], T(1), by=(x -> x >= 5)) == 1:4
-        @test searchsorted(R[1:10;], T(10), by=(x -> x >= 5)) == 5:10
+        @test searchsorted(R[1:10;], T(1), By(x -> x >= 5)) == 1:4
+        @test searchsorted(R[1:10;], T(10), By(x -> x >= 5)) == 5:10
         @test searchsorted(R[1:5; 1:5; 1:5], T(1), 6, 10, Forward) == 6:6
         @test searchsorted(fill(R(1), 15), T(1), 6, 10, Forward) == 6:10
     end
@@ -65,7 +65,7 @@ end
         rgv, rgv_r = [rg;], [rg_r;]
         for i = I
             @test searchsorted(rg,i) == searchsorted(rgv,i)
-            @test searchsorted(rg_r,i,rev=true) == searchsorted(rgv_r,i,rev=true)
+            @test searchsorted(rg_r,i,Backward) == searchsorted(rgv_r,i,Backward)
         end
     end
 
@@ -78,13 +78,13 @@ end
 
     rg_r = reverse(rg)
     for i = 1:100
-        @test searchsorted(rg_r, rg_r[i], rev=true) == i:i
-        @test searchsorted(rg_r, prevfloat(rg_r[i]), rev=true) == i+1:i
-        @test searchsorted(rg_r, nextfloat(rg_r[i]), rev=true) == i:i-1
+        @test searchsorted(rg_r, rg_r[i], Backward) == i:i
+        @test searchsorted(rg_r, prevfloat(rg_r[i]), Backward) == i+1:i
+        @test searchsorted(rg_r, nextfloat(rg_r[i]), Backward) == i:i-1
     end
 
-    @test searchsorted(1:10, 1, by=(x -> x >= 5)) == searchsorted([1:10;], 1, by=(x -> x >= 5))
-    @test searchsorted(1:10, 10, by=(x -> x >= 5)) == searchsorted([1:10;], 10, by=(x -> x >= 5))
+    @test searchsorted(1:10, 1, By(x -> x >= 5)) == searchsorted([1:10;], 1, By(x -> x >= 5))
+    @test searchsorted(1:10, 10, By(x -> x >= 5)) == searchsorted([1:10;], 10, By(x -> x >= 5))
 
     @test searchsorted([], 0) == 1:0
     @test searchsorted([1,2,3], 0) == 1:0
@@ -137,36 +137,36 @@ Base.step(r::ConstantRange) = 0
         @test issorted(b)
         @test a[ix] == b
 
-        b = sort(a, alg=alg, rev=true)
-        @test issorted(b, rev=true)
-        ix = sortperm(a, alg=alg, rev=true)
+        b = sort(a, Backward, alg=alg)
+        @test issorted(b, Backward)
+        ix = sortperm(a, Backward, alg=alg)
         b = a[ix]
-        @test issorted(b, rev=true)
+        @test issorted(b, Backward)
         @test a[ix] == b
 
-        sortperm!(view(ix, 1:100), view(a, 1:100), alg=alg, rev=true)
+        sortperm!(view(ix, 1:100), view(a, 1:100), Backward, alg=alg)
         b = a[ix][1:100]
-        @test issorted(b, rev=true)
+        @test issorted(b, Backward)
 
-        sortperm!(ix, a, alg=alg, rev=true)
+        sortperm!(ix, a, Backward, alg=alg)
         b = a[ix]
-        @test issorted(b, rev=true)
+        @test issorted(b, Backward)
         @test a[ix] == b
 
-        b = sort(a, alg=alg, by=x->1/x)
-        @test issorted(b, by=x->1/x)
-        ix = sortperm(a, alg=alg, by=x->1/x)
+        b = sort(a, By(x->1/x), alg=alg)
+        @test issorted(b, By(x->1/x))
+        ix = sortperm(a, By(x->1/x), alg=alg)
         b = a[ix]
-        @test issorted(b, by=x->1/x)
+        @test issorted(b, By(x->1/x))
         @test a[ix] == b
 
-        sortperm!(view(ix, 1:100), view(a, 1:100), by=x->1/x)
+        sortperm!(view(ix, 1:100), view(a, 1:100), By(x->1/x))
         b = a[ix][1:100]
-        @test issorted(b, by=x->1/x)
+        @test issorted(b, By(x->1/x))
 
-        sortperm!(ix, a, alg=alg, by=x->1/x)
+        sortperm!(ix, a, By(x->1/x), alg=alg)
         b = a[ix]
-        @test issorted(b, by=x->1/x)
+        @test issorted(b, By(x->1/x))
         @test a[ix] == b
 
         c = copy(a)
@@ -176,21 +176,21 @@ Base.step(r::ConstantRange) = 0
         invpermute!(c, ix)
         @test c == a
 
-        c = sort(a, alg=alg, lt=(>))
+        c = sort(a, Less(>), alg=alg)
         @test b == c
 
-        c = sort(a, alg=alg, by=x->1/x)
+        c = sort(a, By(x->1/x), alg=alg)
         @test b == c
     end
 
     @testset "unstable algorithms" begin
-        for alg in [QuickSort, PartialQuickSort(length(a))]
+        for alg in (QuickSort, PartialQuickSort(length(a)))
             b = sort(a, alg=alg)
             @test issorted(b)
-            b = sort(a, alg=alg, rev=true)
-            @test issorted(b, rev=true)
-            b = sort(a, alg=alg, by=x->1/x)
-            @test issorted(b, by=x->1/x)
+            b = sort(a, Backward, alg=alg)
+            @test issorted(b, Backward)
+            b = sort(a, By(x->1/x), alg=alg)
+            @test issorted(b, By(x->1/x))
         end
     end
 end
@@ -200,20 +200,20 @@ end
     let alg = PartialQuickSort(div(length(a), 10))
         k = alg.k
         b = sort(a, alg=alg)
-        c = sort(a, alg=alg, by=x->1/x)
-        d = sort(a, alg=alg, rev=true)
+        c = sort(a, By(x->1/x), alg=alg)
+        d = sort(a, Backward, alg=alg)
         @test issorted(b[1:k])
-        @test issorted(c[1:k], by=x->1/x)
-        @test issorted(d[1:k], rev=true)
+        @test issorted(c[1:k], By(x->1/x))
+        @test issorted(d[1:k], Backward)
         @test !issorted(b)
-        @test !issorted(c, by=x->1/x)
-        @test !issorted(d, rev=true)
+        @test !issorted(c, By(x->1/x))
+        @test !issorted(d, Backward)
     end
 
-    @test partialsort([3,6,30,1,9], 2, rev=true) == 9
-    @test partialsort([3,6,30,1,9], 2, by=x->1/x) == 9
-    @test partialsortperm([3,6,30,1,9], 2, rev=true) == 5
-    @test partialsortperm([3,6,30,1,9], 2, by=x->1/x) == 5
+    @test partialsort([3,6,30,1,9], 2, Backward) == 9
+    @test partialsort([3,6,30,1,9], 2, By(x->1/x)) == 9
+    @test partialsortperm([3,6,30,1,9], 2, Backward) == 5
+    @test partialsortperm([3,6,30,1,9], 2, By(x->1/x)) == 5
 end
 ## more advanced sorting tests ##
 
@@ -234,14 +234,14 @@ end
         v = rand(r,n)
         h = [sum(v .== x) for x in r]
 
-        for rev in [false,true]
+        for order in (Forward,Backward)
             # insertion sort (stable) as reference
-            pi = sortperm(v, alg=InsertionSort, rev=rev)
-            @test pi == sortperm(float(v), alg=InsertionSort, rev=rev)
+            pi = sortperm(v, order, alg=InsertionSort)
+            @test pi == sortperm(float(v), order, alg=InsertionSort)
             @test isperm(pi)
             si = v[pi]
             @test [sum(si .== x) for x in r] == h
-            @test issorted(si, rev=rev)
+            @test issorted(si, order)
             @test all(issorted,[pi[si.==x] for x in r])
             c = copy(v)
             permute!(c, pi)
@@ -250,9 +250,9 @@ end
             @test c == v
 
             # stable algorithms
-            for alg in [MergeSort]
-                p = sortperm(v, alg=alg, rev=rev)
-                @test p == sortperm(float(v), alg=alg, rev=rev)
+            for alg in (MergeSort,)
+                p = sortperm(v, order, alg=alg)
+                @test p == sortperm(float(v), order, alg=alg)
                 @test p == pi
                 s = copy(v)
                 permute!(s, p)
@@ -262,9 +262,9 @@ end
             end
 
             # unstable algorithms
-            for alg in [QuickSort, PartialQuickSort(n)]
-                p = sortperm(v, alg=alg, rev=rev)
-                @test p == sortperm(float(v), alg=alg, rev=rev)
+            for alg in (QuickSort, PartialQuickSort(n))
+                p = sortperm(v, order, alg=alg)
+                @test p == sortperm(float(v), order, alg=alg)
                 @test isperm(p)
                 @test v[p] == si
                 s = copy(v)
@@ -277,15 +277,15 @@ end
 
         v = randn_with_nans(n,0.1)
         # TODO: alg = PartialQuickSort(n) fails here
-        for alg in [InsertionSort, QuickSort, MergeSort],
-            rev in [false,true]
+        for alg in (InsertionSort, QuickSort, MergeSort),
+            order in (Forward,Backward)
             # test float sorting with NaNs
-            s = sort(v, alg=alg, rev=rev)
-            @test issorted(s, rev=rev)
+            s = sort(v, order, alg=alg)
+            @test issorted(s, order)
             @test reinterpret(UInt64,v[isnan.(v)]) == reinterpret(UInt64,s[isnan.(s)])
 
             # test float permutation with NaNs
-            p = sortperm(v, alg=alg, rev=rev)
+            p = sortperm(v, order, alg=alg)
             @test isperm(p)
             vp = v[p]
             @test isequal(vp,s)
@@ -344,9 +344,9 @@ end
     end
 end
 @testset "issue #6177" begin
-    @test sortperm([ 0.0, 1.0, 1.0], rev=true) == [2, 3, 1]
-    @test sortperm([-0.0, 1.0, 1.0], rev=true) == [2, 3, 1]
-    @test sortperm([-1.0, 1.0, 1.0], rev=true) == [2, 3, 1]
+    @test sortperm([ 0.0, 1.0, 1.0], Backward) == [2, 3, 1]
+    @test sortperm([-0.0, 1.0, 1.0], Backward) == [2, 3, 1]
+    @test sortperm([-1.0, 1.0, 1.0], Backward) == [2, 3, 1]
 end
 # issue #8825 - stability of min/max
 mutable struct Twain

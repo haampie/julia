@@ -224,7 +224,7 @@ function manifest_diff(ctx::Context, manifest₀::Dict, manifest₁::Dict)
             push!(diff, DiffEntry(uuid, name₁, nothing, v₁))
         end
     end
-    sort!(diff, by=x->(x.uuid in keys(ctx.stdlibs), x.name, x.uuid))
+    sort!(diff, By(x->(x.uuid in keys(ctx.stdlibs), x.name, x.uuid)))
 end
 
 function filter_manifest!(predicate, manifest::Dict)

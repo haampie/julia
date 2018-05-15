@@ -201,7 +201,7 @@ function Base.union!(ranges::Vector{<:VersionRange})
     l = length(ranges)
     l == 0 && return ranges
 
-    sort!(ranges, lt=(a, b) -> (isless_ll(a.lower, b.lower) || (a.lower == b.lower && isless_uu(a.upper, b.upper))))
+    sort!(ranges, Less((a, b) -> (isless_ll(a.lower, b.lower) || (a.lower == b.lower && isless_uu(a.upper, b.upper)))))
 
     k0 = 1
     ks = findfirst(!isempty, ranges)
@@ -971,13 +971,13 @@ function ensure_resolved(env::EnvCache,
             uuid = UUID(info["uuid"])
             uuid in uuids || push!(uuids, uuid)
         end
-        sort!(uuids, by=uuid -> uuid.value)
+        sort!(uuids, By(uuid -> uuid.value))
         unresolved[pkg.name] = uuids
     end
     isempty(unresolved) && return
     msg = sprint() do io
         println(io, "The following package names could not be resolved:")
-        for (name, uuids) in sort!(collect(unresolved), by=lowercase ∘ first)
+        for (name, uuids) in sort!(collect(unresolved), By(lowercase ∘ first))
         print(io, " * $name (")
         if length(uuids) == 0
             what = ["project", "manifest"]
@@ -1274,7 +1274,7 @@ function write_env(ctx::Context; display_diff=true)
             Pkg3.Display.print_manifest_diff(ctx, old_env, env)
         end
         manifest = deepcopy(env.manifest)
-        uniques = sort!(collect(keys(manifest)), by=lowercase)
+        uniques = sort!(collect(keys(manifest)), By(lowercase))
         filter!(name -> length(manifest[name]) == 1, uniques)
         uuids = Dict(name => UUID(manifest[name][1]["uuid"]) for name in uniques)
         for (name, infos) in manifest, info in infos

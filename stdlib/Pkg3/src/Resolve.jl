@@ -86,7 +86,7 @@ function sanity_check(graph::Graph, sources::Set{UUID} = Set{UUID}(), verbose::B
     np == 0 && return problematic
 
     vers = [(pkgs[p0],pvers[p0][v0]) for p0 = 1:np for v0 = 1:(spp[p0]-1)]
-    sort!(vers, by=pv->(-length(gadj[pdict[pv[1]]])))
+    sort!(vers, By(pv->(-length(gadj[pdict[pv[1]]]))))
 
     nv = length(vers)
 

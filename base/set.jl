@@ -237,7 +237,7 @@ function unique!(A::Union{AbstractVector{<:Real}, AbstractVector{<:AbstractStrin
                           AbstractVector{<:Symbol}})
     if isempty(A)
         return A
-    elseif issorted(A) || issorted(A, rev=true)
+    elseif issorted(A) || issorted(A, Backward)
         return _groupedunique!(A)
     else
         return _unique!(A)

@@ -93,7 +93,7 @@ function available()
     for (pkg, vers) in all_avail
         any(x->Types.satisfies("julia", VERSION, x[2].requires), vers) && push!(avail, pkg)
     end
-    sort!(avail, by=lowercase)
+    sort!(avail, By(lowercase))
 end
 
 function available(pkg::AbstractString)
@@ -255,7 +255,7 @@ function free(pkg::AbstractString)
     with(GitRepo, pkg) do repo
         LibGit2.isdirty(repo) && throw(PkgError("$pkg cannot be freed – repo is dirty"))
         @info "Freeing $pkg"
-        vers = sort!(collect(keys(avail)), rev=true)
+        vers = sort!(collect(keys(avail)), Backward)
         while true
             for ver in vers
                 sha1 = avail[ver].sha1
@@ -282,7 +282,7 @@ function free(pkgs)
             with(GitRepo, pkg) do repo
                 LibGit2.isdirty(repo) && throw(PkgError("$pkg cannot be freed – repo is dirty"))
                 @info "Freeing $pkg"
-                vers = sort!(collect(keys(avail)), rev=true)
+                vers = sort!(collect(keys(avail)), Backward)
                 for ver in vers
                     sha1 = avail[ver].sha1
                     LibGit2.iscommit(sha1, repo) || continue

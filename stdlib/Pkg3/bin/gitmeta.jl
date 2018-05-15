@@ -58,7 +58,7 @@ function gitmeta(pkgs::Dict{String,Package})
     end
     println(io, "]")
     println(io)
-    for (pkg, p) in sort!(collect(pkgs), by=first)
+    for (pkg, p) in sort!(collect(pkgs), By(first))
         (pkg == "julia" || isempty(p.versions)) && continue
         uuid = string(p.uuid)
         @info "Package [$uuid] $pkg"
@@ -106,7 +106,7 @@ function gitmeta(pkgs::Dict{String,Package})
         end
         isempty(s[uuid]) && continue
         println(io, "[$uuid]")
-        for (sha1, n) in sort!(collect(s[uuid]), by=string∘first)
+        for (sha1, n) in sort!(collect(s[uuid]), By(string∘first))
             println(io, "$sha1 = $n")
         end
         println(io)

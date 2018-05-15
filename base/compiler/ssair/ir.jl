@@ -55,7 +55,7 @@ struct CFG
 end
 
 function block_for_inst(index, inst)
-    searchsortedfirst(index, inst, lt=(<=))
+    searchsortedfirst(index, inst, Less(<=))
 end
 block_for_inst(cfg::CFG, inst) = block_for_inst(cfg.index, inst)
 
@@ -396,7 +396,7 @@ function my_sortperm(v)
     for i = 1:length(v)
         p[i] = i
     end
-    sort!(p, Sort.DEFAULT_UNSTABLE, Order.Perm(Sort.Forward,v))
+    sort!(p, Sort.DEFAULT_UNSTABLE, Order.Perm(v))
     p
 end
 

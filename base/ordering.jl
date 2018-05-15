@@ -5,74 +5,56 @@ module Order
 
 import ..@__MODULE__, ..parentmodule
 const Base = parentmodule(@__MODULE__)
-import .Base:
-    AbstractVector, @propagate_inbounds, isless, identity, getindex,
-    +, -, !, &, <, |
+import .Base: AbstractVector, @propagate_inbounds, @inline, 
+    isless, identity, !, &, <, |
 
 ## notions of element ordering ##
 
 export # not exported by Base
-    Ordering, Forward, Reverse,
-    By, Lt, Perm,
-    ReverseOrdering, ForwardOrdering,
-    DirectOrdering,
-    lt, ord, ordtype
+    Ordering, Forward, Backward,
+    By, Less, Reverse, Perm,
+    ForwardOrdering, BackwardOrdering, DirectOrdering
 
 abstract type Ordering end
 
-struct ForwardOrdering <: Ordering end
-struct ReverseOrdering{Fwd<:Ordering} <: Ordering
-    fwd::Fwd
+struct Less{T<:Function} <: Ordering
+    isless::T
 end
 
-ReverseOrdering(rev::ReverseOrdering) = rev.fwd
-ReverseOrdering(fwd::Fwd) where {Fwd} = ReverseOrdering{Fwd}(fwd)
+const Forward = Less(isless)
 
-const DirectOrdering = Union{ForwardOrdering,ReverseOrdering{ForwardOrdering}}
-
-const Forward = ForwardOrdering()
-const Reverse = ReverseOrdering(Forward)
-
-struct By{T} <: Ordering
+struct By{T<:Function,O<:Ordering} <: Ordering
     by::T
+    isless::O
 end
 
-struct Lt{T} <: Ordering
-    lt::T
+struct Reverse{O<:Ordering} <: Ordering
+    isless::O
 end
 
 struct Perm{O<:Ordering,V<:AbstractVector} <: Ordering
-    order::O
+    isless::O
     data::V
 end
 
-lt(o::ForwardOrdering,       a, b) = isless(a,b)
-lt(o::ReverseOrdering,       a, b) = lt(o.fwd,b,a)
-lt(o::By,                    a, b) = isless(o.by(a),o.by(b))
-lt(o::Lt,                    a, b) = o.lt(a,b)
+@inline Reverse(o::Reverse) = o.isless
+@inline By(by::typeof(identity), o::Ordering) = o
+@inline By(by::Function) = By(by, Forward)
+@inline Perm(data::AbstractVector) = Perm(Forward, data)
 
-@propagate_inbounds function lt(p::Perm, a::Integer, b::Integer)
-    da = p.data[a]
-    db = p.data[b]
-    lt(p.order, da, db) | (!lt(p.order, db, da) & (a < b))
-end
+const Backward = Reverse(Forward)
 
-ordtype(o::ReverseOrdering, vs::AbstractArray) = ordtype(o.fwd, vs)
-ordtype(o::Perm,            vs::AbstractArray) = ordtype(o.order, o.data)
-# TODO: here, we really want the return type of o.by, without calling it
-ordtype(o::By,              vs::AbstractArray) = try typeof(o.by(vs[1])) catch; Any end
-ordtype(o::Ordering,        vs::AbstractArray) = eltype(vs)
+const ForwardOrdering = typeof(Forward)
+const BackwardOrdering = typeof(Backward)
+const DirectOrdering = Union{ForwardOrdering,BackwardOrdering}
 
-_ord(lt::typeof(isless), by::typeof(identity), order::Ordering) = order
-_ord(lt::typeof(isless), by,                   order::Ordering) = By(by)
-_ord(lt,                 by::typeof(identity), order::Ordering) = Lt(lt)
-_ord(lt,                 by,                   order::Ordering) = Lt((x,y)->lt(by(x),by(y)))
+@inline (o::Less)(a, b) = o.isless(a, b)
+@inline (o::By)(a, b) = o.isless(o.by(a), o.by(b))
+@inline (o::Reverse)(a, b) = o.isless(b, a)
 
-ord(lt, by, rev::Nothing, order::Ordering=Forward) = _ord(lt, by, order)
-
-function ord(lt, by, rev::Bool, order::Ordering=Forward)
-    o = _ord(lt, by, order)
-    return rev ? ReverseOrdering(o) : o
+@propagate_inbounds function (o::Perm)(a, b)
+    da, db = o.data[a], o.data[b]
+    o.isless(da, db) | (!o.isless(db, da) & (a < b))
 end
 
 end

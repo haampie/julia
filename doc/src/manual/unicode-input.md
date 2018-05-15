@@ -58,7 +58,7 @@ function table_entries(completions, unicode_dict)
         "Code point(s)", "Character(s)",
         "Tab completion sequence(s)", "Unicode name(s)"
     ]]
-    for (chars, inputs) in sort!(collect(completions), by = first)
+    for (chars, inputs) in sort!(collect(completions), By(first))
         code_points, unicode_names, characters = String[], String[], String[]
         for char in chars
             push!(code_points, "U+$(uppercase(string(UInt32(char), base = 16, pad = 5)))")

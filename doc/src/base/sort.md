@@ -14,7 +14,7 @@ julia> sort([2,3,1])
 You can easily sort in reverse order as well:
 
 ```jldoctest
-julia> sort([2,3,1], rev=true)
+julia> sort([2,3,1], Backward)
 3-element Array{Int64,1}:
  3
  2
@@ -67,7 +67,7 @@ julia> v[p]
 Arrays can easily be sorted according to an arbitrary transformation of their values:
 
 ```julia-repl
-julia> sort(v, by=abs)
+julia> sort(v, By(abs))
 5-element Array{Float64,1}:
  -0.0104452
   0.297288
@@ -79,7 +79,7 @@ julia> sort(v, by=abs)
 Or in reverse order by a transformation:
 
 ```julia-repl
-julia> sort(v, by=abs, rev=true)
+julia> sort(v, Reverse(By(abs)))
 5-element Array{Float64,1}:
  -0.839027
  -0.597634

@@ -8,7 +8,7 @@ Support for sparse arrays. Provides `AbstractSparseArray` and subtypes.
 module SparseArrays
 
 using Base: ReshapedArray, promote_op, setindex_shape_check, to_shape, tail
-using Base.Sort: Forward
+# using Base.Sort: Forward
 using LinearAlgebra
 
 import Base: +, -, *, \, /, &, |, xor, ==

@@ -706,7 +706,7 @@ function normestinv(A::SparseMatrixCSC{T}, t::Integer = min(2,maximum(size(A))))
         if iter >=2 && ind_best == h_ind
             break
         end
-        p = sortperm(h, rev=true)
+        p = sortperm(h, Backward)
         h = h[p]
         permute!(ind, p)
         if t > 1

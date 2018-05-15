@@ -38,7 +38,7 @@ function check_minmax_consistency(old::Array{T,1}, m::T, start::T, o::Base.Order
     for v in old
         if v != start
             # Check that atomic op that installed v reported consistent old value.
-            @test Base.lt(o, old[v-m+1], v)
+            @test o(old[v-m+1], v)
         end
     end
 end
@@ -56,7 +56,7 @@ function test_threaded_atomic_minmax(m::T,n::T) where T
     @test x[] == m
     @test y[] == n
     check_minmax_consistency(oldy,m,mid,Base.Forward)
-    check_minmax_consistency(oldx,m,mid,Base.Reverse)
+    check_minmax_consistency(oldx,m,mid,Base.Backward)
 end
 
 # The ranges below verify that the correct signed/unsigned comparison is used.

@@ -641,7 +641,7 @@ function svdvals!(A::RealHermSymComplexHerm)
     for i = 1:length(vals)
         vals[i] = abs(vals[i])
     end
-    return sort!(vals, rev = true)
+    return sort!(vals, Backward)
 end
 
 # Matrix functions

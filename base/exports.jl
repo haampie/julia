@@ -140,6 +140,13 @@ export
     VERSION,
     devnull,
 
+# Order
+    By,
+    Forward,
+    Backward,
+    Less,
+    Reverse,
+
 # Mathematical constants
     Inf,
     Inf16,

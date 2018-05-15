@@ -232,7 +232,7 @@ function _subtypes_in(mods::Array, x::Type)
     for m in mods
         _subtypes(m, x, sts, visited)
     end
-    return sort!(collect(sts), by=string)
+    return sort!(collect(sts), By(string))
 end
 
 subtypes(m::Module, x::Type) = _subtypes_in([m], x)

@@ -77,7 +77,7 @@ function sanity_check(deps::Dict{String,Dict{VersionNumber,Available}},
     end
 
     vers = [(p,vn) for (p,d) in deps for vn in keys(d)]
-    sort!(vers, by=pvn->(-ndeps[pvn[1]][pvn[2]]))
+    sort!(vers, By(pvn->(-ndeps[pvn[1]][pvn[2]])))
 
     nv = length(vers)
 

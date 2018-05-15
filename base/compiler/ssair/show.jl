@@ -88,7 +88,7 @@ function Base.show(io::IO, code::IRCode)
     end
     new_nodes = code.new_nodes[filter(i->isassigned(code.new_nodes, i), 1:length(code.new_nodes))]
     foreach(nn -> scan_ssa_use!(used, nn.node), new_nodes)
-    perm = sortperm(new_nodes, by = x->x.pos)
+    perm = sortperm(new_nodes, By(x->x.pos))
     new_nodes_perm = Iterators.Stateful(perm)
 
     if isempty(used)

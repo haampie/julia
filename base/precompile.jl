@@ -222,7 +222,6 @@ precompile(Tuple{typeof(Base.Multimedia.display), REPL.REPLDisplay{REPL.LineEdit
 precompile(Tuple{typeof(Base.Multimedia.display), REPL.REPLDisplay{REPL.LineEditREPL}, Module})
 precompile(Tuple{typeof(Base.Multimedia.display), REPL.REPLDisplay{REPL.LineEditREPL}, String})
 precompile(Tuple{typeof(Base.Multimedia.pushdisplay), REPL.REPLDisplay{REPL.LineEditREPL}})
-precompile(Tuple{typeof(Base.Order.ord), typeof(Base.isless), typeof(Base.identity), Nothing, Base.Order.ForwardOrdering})
 precompile(Tuple{typeof(Base.StackTraces.is_loc_meta), Expr, Symbol})
 precompile(Tuple{typeof(Base.__init__)})
 precompile(Tuple{typeof(Base._atexit)})

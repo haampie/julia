@@ -456,7 +456,7 @@ function show_method_candidates(io::IO, ex::MethodError, @nospecialize kwargs=()
         Base.with_output_color(:normal, io) do io
             println(io)
             print(io, "Closest candidates are:")
-            sort!(lines, by = x -> -x[2])
+            sort!(lines, By(x -> -x[2]))
             i = 0
             for line in lines
                 println(io)

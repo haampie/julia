@@ -2358,8 +2358,8 @@ function Base.fill!(V::SubArray{Tv, <:Any, <:SparseMatrixCSC, Tuple{Vararg{Union
     I, J = V.indices
     if isempty(I) || isempty(J); return A; end
     # lt=≤ to check for strict sorting
-    if !issorted(I, lt=≤); I = sort!(unique(I)); end
-    if !issorted(J, lt=≤); J = sort!(unique(J)); end
+    if !issorted(I, Less(≤)); I = sort!(unique(I)); end
+    if !issorted(J, Less(≤)); J = sort!(unique(J)); end
     if (I[1] < 1 || I[end] > A.m) || (J[1] < 1 || J[end] > A.n)
         throw(BoundsError(A, (I, J)))
     end

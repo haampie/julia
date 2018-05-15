@@ -275,8 +275,8 @@ for s in [map(first,V8); X8],
     ss = s[i:j]
     ss in X8 || push!(X8, ss)
 end
-sort!(X8, lt=isless)
-sort!(X8, by=length)
+sort!(X8)
+sort!(X8, Base.Order.By(length))
 
 I8 = [(s,map(UInt16,s)) for s in X8]
 
