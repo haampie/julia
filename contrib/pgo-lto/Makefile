@@ -42,7 +42,7 @@ stage1: | $(STAGE1_BUILD)
 
 stage2: export CFLAGS=-fprofile-use=$(PROFILE_FILE)
 stage2: export CXXFLAGS=-fprofile-use=$(PROFILE_FILE)
-stage2: export LDFLAGS=-fuse-ld=lld -flto=thin -fprofile-use=$(PROFILE_FILE)
+stage2: export LDFLAGS=-fuse-ld=lld -flto=thin -fprofile-use=$(PROFILE_FILE) -Wl,--icf=safe
 stage2: $(PROFILE_FILE) | $(STAGE2_BUILD)
 	$(MAKE) -C $(STAGE2_BUILD) && touch $@
 
