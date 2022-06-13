@@ -1,5 +1,8 @@
 .PHONY: top clean
 
+STAGE1_BUILD:=$(CURDIR)/stage1.build
+STAGE2_BUILD:=$(CURDIR)/stage2.build
+
 PROFILE_DIR:=$(CURDIR)/profiles
 PROFILE_FILE:=$(PROFILE_DIR)/merged.prof
 JULIA_ROOT:=$(CURDIR)/../..
@@ -28,11 +31,20 @@ AFTER_STAGE1_MESSAGE:=Consider removing $(PROFILE_DIR) to start with a clean sla
 	counter overflows, which can be detected by running \`make $(PROFILE_FILE)\`. $\
 	Afterwards run `make stage2`.
 
+$(STAGE1_BUILD) $(STAGE2_BUILD):
+	$(MAKE) -C $(JULIA_ROOT) O=$@ configure
+
 stage1: export CFLAGS=-fprofile-generate=$(PROFILE_DIR) -Xclang -mllvm -Xclang -vp-counters-per-site=$(COUNTERS_PER_SITE)
 stage1: export CXXFLAGS=-fprofile-generate=$(PROFILE_DIR) -Xclang -mllvm -Xclang -vp-counters-per-site=$(COUNTERS_PER_SITE)
 stage1: export LDFLAGS=-fuse-ld=lld -flto=thin -fprofile-generate=$(PROFILE_DIR)
-stage1:
-	$(MAKE) -C $(JULIA_ROOT) && echo Consider removing $(PROFILE_DIR) to start with a clean slate && touch $@
+stage1: | $(STAGE1_BUILD)
+	$(MAKE) -C $(STAGE1_BUILD) && echo Consider removing $(PROFILE_DIR) to start with a clean slate && touch $@
+
+stage2: export CFLAGS=-fprofile-use=$(PROFILE_FILE)
+stage2: export CXXFLAGS=-fprofile-use=$(PROFILE_FILE)
+stage2: export LDFLAGS=-fuse-ld=lld -flto=thin -fprofile-use=$(PROFILE_FILE)
+stage2: $(PROFILE_FILE) | $(STAGE2_BUILD)
+	$(MAKE) -C $(STAGE2_BUILD) && touch $@
 
 $(PROFILE_FILE): stage1
 	$(LLVM_PROFDATA) merge -output=$@ $(wildcard $(PROFILE_DIR)/*.profraw)
@@ -40,15 +52,6 @@ $(PROFILE_FILE): stage1
 # show top 50 functions
 top: $(PROFILE_FILE)
 	$(LLVM_PROFDATA) show --topn=50 $< | $(CXXFILT)
-
-stage2: export CFLAGS=-fprofile-use=$(PROFILE_FILE)
-stage2: export CXXFLAGS=-fprofile-use=$(PROFILE_FILE)
-stage2: export LDFLAGS=-fuse-ld=lld -flto=thin -fprofile-use=$(PROFILE_FILE)
-stage2: $(PROFILE_FILE)
-	# Todo, get rid of rm -rf: deleting CMakeCache.txt as part make -C clean-llvm?
-	$(MAKE) -C $(JULIA_ROOT) cleanall && \
-	rm -rf $(JULIA_ROOT)/deps/scratch && \
-	$(MAKE) -C $(JULIA_ROOT) && touch $@
 
 clean:
 	rm -f stage1 stage2 $(PROFILE_FILE)
